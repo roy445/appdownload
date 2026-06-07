@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: appdownload-api
+    env: node
+    plan: free
+    branch: main
+    buildCommand: "cd server && npm install"
+    startCommand: "cd server && npm start"
+    envVars:
+      - key: DOWNLOAD_TOKEN
+        value: "${{env.DOWNLOAD_TOKEN}}"
+      - key: GITHUB_RAW_BASE
+        value: "https://raw.githubusercontent.com/roy445/appdownload/main/download"
