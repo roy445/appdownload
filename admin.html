@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>後台日誌</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;max-width:980px;margin:24px auto;padding:0 16px;color:#111}
+    h1{font-size:20px;margin-bottom:8px}
+    .controls{margin-bottom:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border:1px solid #eee;text-align:left;font-size:13px}
+    th{background:#fafafa}
+    .error{color:#b00}
+    .muted{color:#666;font-size:13px}
+  </style>
+</head>
+<body>
+  <h1>後台日誌檢視</h1>
+  <div class="controls">
+    <button id="btnFetch">輸入密碼並載入日誌</button>
+    <span class="muted">（將透過 config/webhook.json 指向的 Apps Script 取得日誌）</span>
+  </div>
+  <div id="status" class="muted">尚未載入</div>
+  <div id="out"></div>
+
+  <script>
+    async function getWebhookUrl(){
+      try{
+        const r = await fetch('config/webhook.json');
+        if(!r.ok) return null;
+        const j = await r.json();
+        return j.sheetsWebhook || null;
+      }catch(e){return null}
+    }
+
+    function renderTable(rows){
+      if(!Array.isArray(rows) || rows.length===0) return '<div class="muted">沒有日誌</div>';
+      let html = '<table><thead><tr><th>時間</th><th>類型</th><th>頁面</th><th>額外</th><th>IP</th></tr></thead><tbody>';
+      rows.forEach(r=>{
+        html += `<tr><td>${r.time||''}</td><td>${r.type||''}</td><td>${r.page||''}</td><td>${r.extra||''}</td><td>${r.ip||''}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      return html;
+    }
+
+    document.getElementById('btnFetch').addEventListener('click', async ()=>{
+      const status = document.getElementById('status');
+      const out = document.getElementById('out');
+      status.textContent = '讀取 webhook 設定…';
+      const url = await getWebhookUrl();
+      if(!url){ status.textContent = ''; out.innerHTML = '<div class="error">找不到 config/webhook.json 或 sheetsWebhook 未設定</div>'; return; }
+      const pass = prompt('管理密碼（Admin Pass）：');
+      if(!pass) return;
+      status.textContent = '載入日誌…';
+      try{
+        const r = await fetch(`${url}?admin_pass=${encodeURIComponent(pass)}`);
+        const text = await r.text();
+        if(!r.ok){ out.innerHTML = `<div class="error">無法取得日誌：${r.status} ${text}</div>`; status.textContent=''; return; }
+        let j = null;
+        try{ j = JSON.parse(text); }catch(e){ out.innerHTML = `<div class="error">回傳非 JSON：${text}</div>`; status.textContent=''; return; }
+        const rows = j.content || [];
+        out.innerHTML = renderTable(rows);
+        status.textContent = `載入 ${rows.length} 筆`;
+      }catch(err){ out.innerHTML = `<div class="error">請求失敗：${err.message}</div>`; status.textContent=''; }
+    });
+  </script>
+</body>
+</html>
