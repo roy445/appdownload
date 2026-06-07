@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>版本歷史</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    async function loadHistory() {
+      try {
+        const res = await fetch('config/version.json');
+        const v = await res.json();
+        document.title = `版本歷史 • v${v.latest}`;
+
+        const list = document.getElementById('history-list');
+        list.innerHTML = '';
+        if (Array.isArray(v.history)) {
+          v.history.forEach(item => {
+            const div = document.createElement('article');
+            div.className = 'history-item';
+            const title = document.createElement('h2');
+            title.textContent = `${item.version}${item.tag ? '（' + item.tag + '）' : ''}`;
+            div.appendChild(title);
+            const ul = document.createElement('ul');
+            (item.notes || []).forEach(n => {
+              const li = document.createElement('li');
+              li.textContent = n;
+              ul.appendChild(li);
+            });
+            div.appendChild(ul);
+            list.appendChild(div);
+          });
+        } else {
+          list.textContent = '無版本歷史資料';
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadHistory);
+  </script>
+</head>
+<body>
+  <main class="container">
+    <h1>版本歷史</h1>
+    <section id="history-list" class="card">
+      正在載入…
+    </section>
+    <p><a href="index.html">回到首頁</a></p>
+  </main>
+
+  <footer>
+    <small id="footer-ver">版本</small>
+  </footer>
+</body>
+</html>

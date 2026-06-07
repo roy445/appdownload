@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>版本資訊</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    async function loadVersion() {
+      try {
+        const res = await fetch('config/version.json');
+        const v = await res.json();
+        // Title
+        document.title = `v${v.latest} • 下載`;
+
+        // Populate card
+        document.getElementById('ver-number').textContent = `v${v.latest}`;
+        document.getElementById('ver-date').textContent = new Date(v.releaseDate).toLocaleDateString('zh-TW');
+        document.getElementById('ver-size').textContent = v.size;
+        document.getElementById('ver-min').textContent = v.minAndroid;
+        document.getElementById('ver-status').textContent = v.status === 'Latest' ? '🟢 最新版本' : v.status;
+
+        // Download button
+        const dl = document.getElementById('download-btn');
+        dl.href = v.apk;
+        dl.setAttribute('download', '');
+
+        // Footer
+        document.getElementById('footer-ver').textContent = `版本 v${v.latest}`;
+      } catch (err) {
+        console.error('讀取 version.json 發生錯誤', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadVersion);
+  </script>
+</head>
+<body>
+  <main class="container">
+    <h1>最新版本</h1>
+    <section class="card">
+      <pre class="box">
+━━━━━━━━━━━━━━━
+目前版本
+<span id="ver-number">-</span>
+
+最新更新
+<span id="ver-date">-</span>
+
+APK大小
+<span id="ver-size">-</span>
+
+支援版本
+<span id="ver-min">-</span>
+
+更新狀態
+<span id="ver-status">-</span>
+━━━━━━━━━━━━━━━
+      </pre>
+      <a id="download-btn" class="btn" href="#">下載最新版本</a>
+      <p><a href="versions.html">查看版本歷史</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <small id="footer-ver">版本 -</small>
+  </footer>
+</body>
+</html>
