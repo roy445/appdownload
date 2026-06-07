@@ -28,6 +28,8 @@ async function putFile(token, content, sha, message) {
 module.exports = async (req, res) => {
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   const ADMIN_PASS = process.env.ADMIN_PASS;
+  // Non-sensitive debug: log presence of env vars (do NOT print token value)
+  console.log('DEBUG: env present:', { GITHUB_TOKEN: !!GITHUB_TOKEN, ADMIN_PASS: !!ADMIN_PASS });
   if (!GITHUB_TOKEN) return res.status(500).json({error:'GITHUB_TOKEN not configured'});
 
   try {
