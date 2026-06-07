@@ -1,39 +1,48 @@
-{
-  "latest": "1.0.0",
-  "build": "20260607",
-  "releaseDate": "2026-06-07",
-  "apk": "download/app-v1.0.0.apk",
-  "size": "18.5 MB",
-  "minAndroid": "Android 9+",
-  "status": "Latest",
-  "history": [
-    {
-      "version": "v1.0.0",
-      "tag": "Latest",
-      "date": "2026-06-07",
-      "notes": [
-        "首次正式發布",
-        "行程報名",
-        "留言功能",
-        "分享功能"
-      ]
-    },
-    {
-      "version": "v0.9.0",
-      "tag": "Beta",
-      "date": "2026-05-20",
-      "notes": [
-        "測試版本",
-        "修正登入問題"
-      ]
-    },
-    {
-      "version": "v0.8.0",
-      "tag": "Alpha",
-      "date": "2026-04-01",
-      "notes": [
-        "初始開發版本"
-      ]
-    }
-  ]
+﻿{
+    "latest":  "1.0.1",
+    "build":  "20260608",
+    "releaseDate":  "2026-06-08",
+    "apk":  "download/app-v1.0.1.apk",
+    "size":  "6.54 MB",
+    "minAndroid":  "Android 9+",
+    "status":  "Latest",
+    "history":  [
+                    {
+                        "date":  "2026-06-08",
+                        "version":  "v1.0.1",
+                        "tag":  "Latest",
+                        "notes":  [
+                                      "首次正式釋出",
+                                      "改進與修正"
+                                  ]
+                    },
+                    {
+                        "version":  "v1.0.0",
+                        "tag":  "Latest",
+                        "date":  "2026-06-07",
+                        "notes":  [
+                                      "擐活甇???澆?",
+                                      "銵??勗?",
+                                      "???",
+                                      "?澈?"
+                                  ]
+                    },
+                    {
+                        "version":  "v0.9.0",
+                        "tag":  "Beta",
+                        "date":  "2026-05-20",
+                        "notes":  [
+                                      "皜祈岫?",
+                                      "靽格迤?餃??"
+                                  ]
+                    },
+                    {
+                        "version":  "v0.8.0",
+                        "tag":  "Alpha",
+                        "date":  "2026-04-01",
+                        "notes":  [
+                                      "????"
+                                  ]
+                    }
+                ]
 }
