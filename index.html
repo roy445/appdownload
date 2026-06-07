@@ -74,15 +74,30 @@
           const pass = prompt('管理密碼：');
           if (!pass) return;
           try {
-            const r = await fetch(`/api/log?admin_pass=${encodeURIComponent(pass)}`);
-            if (r.status === 200) {
-              const j = await r.json();
-              const w = window.open('about:blank','_blank','width=700,height=600');
-              w.document.title = 'Logs';
-              w.document.body.style.whiteSpace = 'pre-wrap';
-              w.document.body.textContent = j.content || 'no logs';
+            // If a webhook URL is configured, call it directly with admin_pass
+            if (window.SHEETS_WEBHOOK_URL) {
+              const url = `${window.SHEETS_WEBHOOK_URL}?admin_pass=${encodeURIComponent(pass)}`;
+              const r = await fetch(url);
+              if (r.status === 200) {
+                const j = await r.json();
+                const w = window.open('about:blank','_blank','width=700,height=600');
+                w.document.title = 'Logs';
+                w.document.body.style.whiteSpace = 'pre-wrap';
+                w.document.body.textContent = JSON.stringify(j.content || 'no logs', null, 2);
+              } else {
+                alert('密碼錯誤或無法取得日誌');
+              }
             } else {
-              alert('密碼錯誤或無法取得日誌');
+              const r = await fetch(`/api/log?admin_pass=${encodeURIComponent(pass)}`);
+              if (r.status === 200) {
+                const j = await r.json();
+                const w = window.open('about:blank','_blank','width=700,height=600');
+                w.document.title = 'Logs';
+                w.document.body.style.whiteSpace = 'pre-wrap';
+                w.document.body.textContent = j.content || 'no logs';
+              } else {
+                alert('密碼錯誤或無法取得日誌');
+              }
             }
           } catch (err) {
             console.error(err);
