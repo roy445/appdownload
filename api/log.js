@@ -34,7 +34,24 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === 'POST') {
-      const {type, page, extra} = req.body || {};
+      // Safely obtain parsed JSON body. Accessing req.body can throw
+      // in some server runtimes if the incoming JSON is invalid,
+      // so attempt to use req.body but fall back to reading the raw
+      // stream and parsing with a safe JSON.parse.
+      let parsedBody = {};
+      try {
+        parsedBody = req.body || {};
+      } catch (e) {
+        parsedBody = await new Promise((resolve) => {
+          let data = '';
+          req.on('data', (chunk) => data += chunk);
+          req.on('end', () => {
+            try { resolve(JSON.parse(data || '{}')); } catch { resolve({}); }
+          });
+          req.on('error', () => resolve({}));
+        });
+      }
+      const {type, page, extra} = parsedBody;
       const now = new Date().toISOString();
       const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || '';
       const line = `${now} \t ${type || 'view'} \t ${page || '-'} \t ${ip} \t ${extra || '-'}\n`;
