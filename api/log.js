@@ -1,5 +1,4 @@
-const fetch = require('node-fetch');
-
+// Use global fetch provided by Vercel runtime
 const OWNER = 'roy445';
 const REPO = 'appdownload';
 const PATH = 'logs/events.log';
@@ -9,7 +8,8 @@ async function getFile(token) {
   const res = await fetch(url, {headers: {Authorization: `token ${token}`, 'User-Agent': 'appdownload-log'}});
   if (res.status === 200) return res.json();
   if (res.status === 404) return null;
-  throw new Error(`GitHub GET failed: ${res.status}`);
+  const txt = await res.text();
+  throw new Error(`GitHub GET failed: ${res.status} ${txt}`);
 }
 
 async function putFile(token, content, sha, message) {
@@ -20,8 +20,9 @@ async function putFile(token, content, sha, message) {
   };
   if (sha) body.sha = sha;
   const res = await fetch(url, {method: 'PUT', headers: {Authorization: `token ${token}`, 'User-Agent': 'appdownload-log','Content-Type':'application/json'}, body: JSON.stringify(body)});
-  if (!res.ok) throw new Error(`GitHub PUT failed: ${res.status}`);
-  return res.json();
+  const txt = await res.text();
+  if (!res.ok) throw new Error(`GitHub PUT failed: ${res.status} ${txt}`);
+  return JSON.parse(txt);
 }
 
 module.exports = async (req, res) => {
