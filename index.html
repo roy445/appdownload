@@ -15,10 +15,21 @@
 
         // Populate card
         document.getElementById('ver-number').textContent = `v${v.latest}`;
-        document.getElementById('ver-date').textContent = new Date(v.releaseDate).toLocaleDateString('zh-TW');
+        const humanDate = new Date(v.releaseDate).toLocaleDateString('zh-TW');
+        document.getElementById('ver-date').textContent = humanDate;
+        document.getElementById('ver-date-top').textContent = humanDate;
         document.getElementById('ver-size').textContent = v.size;
         document.getElementById('ver-min').textContent = v.minAndroid;
-        document.getElementById('ver-status').textContent = v.status === 'Latest' ? '🟢 最新版本' : v.status;
+
+        // Status badge
+        const statusWrap = document.getElementById('status-wrap');
+        if (v.status === 'Latest'){
+          statusWrap.textContent = '🟢 最新版本';
+          statusWrap.style.background = '#ecfdf5';
+          statusWrap.style.color = 'var(--success)';
+        } else {
+          statusWrap.textContent = v.status;
+        }
 
         // Download button
         const dl = document.getElementById('download-btn');
@@ -35,35 +46,42 @@
     document.addEventListener('DOMContentLoaded', loadVersion);
   </script>
 </head>
-<body>
-  <main class="container">
-    <h1>最新版本</h1>
-    <section class="card">
-      <pre class="box">
-━━━━━━━━━━━━━━━
-目前版本
-<span id="ver-number">-</span>
+  <body>
+  <div class="site">
+    <div class="container">
+      <header class="header">
+        <div class="brand">
+          <div class="logo">A</div>
+          <div>
+            <div class="title">App 版本資訊</div>
+            <div class="small">下載與更新記錄</div>
+          </div>
+        </div>
+        <div class="small">發布日期：<span id="ver-date-top">-</span></div>
+      </header>
 
-最新更新
-<span id="ver-date">-</span>
+      <section class="card">
+        <div class="version-grid">
+          <div class="meta">
+            <div><b>目前版本</b> <span id="ver-number">-</span></div>
+            <div><b>最新更新</b> <span id="ver-date">-</span></div>
+            <div><b>APK 大小</b> <span id="ver-size">-</span></div>
+            <div><b>支援</b> <span id="ver-min">-</span></div>
+          </div>
+          <div style="text-align:center">
+            <div id="status-wrap" class="status">-</div>
+            <div class="download">
+              <a id="download-btn" class="btn" href="#">下載最新版本</a>
+              <div style="margin-top:8px"><a class="btn secondary" href="versions.html">版本歷史</a></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-APK大小
-<span id="ver-size">-</span>
-
-支援版本
-<span id="ver-min">-</span>
-
-更新狀態
-<span id="ver-status">-</span>
-━━━━━━━━━━━━━━━
-      </pre>
-      <a id="download-btn" class="btn" href="#">下載最新版本</a>
-      <p><a href="versions.html">查看版本歷史</a></p>
-    </section>
-  </main>
-
-  <footer>
-    <small id="footer-ver">版本 -</small>
-  </footer>
+      <footer>
+        <small id="footer-ver">版本 -</small>
+      </footer>
+    </div>
+  </div>
 </body>
 </html>

@@ -41,17 +41,27 @@
     document.addEventListener('DOMContentLoaded', loadHistory);
   </script>
 </head>
-<body>
-  <main class="container">
-    <h1>版本歷史</h1>
-    <section id="history-list" class="card">
-      正在載入…
-    </section>
-    <p><a href="index.html">回到首頁</a></p>
-  </main>
+  <body>
+  <div class="site">
+    <div class="container">
+      <header class="header">
+        <div class="brand">
+          <div class="logo">A</div>
+          <div>
+            <div class="title">版本歷史</div>
+            <div class="small">所有發布記錄</div>
+          </div>
+        </div>
+        <div><a href="index.html" class="btn secondary">回到首頁</a></div>
+      </header>
 
-  <footer>
-    <small id="footer-ver">版本</small>
-  </footer>
+      <section id="history-list" class="history-list">
+        <div class="card">正在載入…</div>
+      </section>
+      <footer>
+        <small id="footer-ver">版本</small>
+      </footer>
+    </div>
+  </div>
 </body>
 </html>
