@@ -29,18 +29,30 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  // Admin read endpoint: requires admin_pass query param
-  const pass = e.parameter && e.parameter.admin_pass;
-  if (!pass || pass !== ADMIN_PASS) {
-    return ContentService.createTextOutput(JSON.stringify({error:'unauthorized'})).setMimeType(ContentService.MimeType.JSON).setStatusCode(401);
+  // If admin_pass provided, return logs (admin interface)
+  const params = e.parameter || {};
+  const pass = params.admin_pass;
+  if (pass) {
+    if (pass !== ADMIN_PASS) {
+      return ContentService.createTextOutput(JSON.stringify({error:'unauthorized'})).setMimeType(ContentService.MimeType.JSON).setStatusCode(401);
+    }
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) return ContentService.createTextOutput(JSON.stringify({content:''})).setMimeType(ContentService.MimeType.JSON);
+    const data = sheet.getDataRange().getValues();
+    const rows = data.map(r => ({time: r[0], type: r[1], page: r[2], extra: r[3], ip: r[4]}));
+    return ContentService.createTextOutput(JSON.stringify({content: rows})).setMimeType(ContentService.MimeType.JSON);
   }
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) return ContentService.createTextOutput(JSON.stringify({content:''})).setMimeType(ContentService.MimeType.JSON);
+  // Otherwise, treat GET with query params as a logging event (allows image-beacon or simple GET without CORS)
+  if (params.type) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
+    const now = new Date();
+    sheet.appendRow([now.toISOString(), params.type || 'view', params.page || '-', params.extra || '-', params.ip || '']);
+    return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
+  }
 
-  const data = sheet.getDataRange().getValues();
-  // Return as array of objects
-  const rows = data.map(r => ({time: r[0], type: r[1], page: r[2], extra: r[3], ip: r[4]}));
-  return ContentService.createTextOutput(JSON.stringify({content: rows})).setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({content:''})).setMimeType(ContentService.MimeType.JSON);
 }

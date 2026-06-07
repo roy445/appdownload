@@ -38,6 +38,12 @@
 
         // Footer
         document.getElementById('footer-ver').textContent = `版本 v${v.latest}`;
+        // try to load webhook config
+        try {
+          const w = await fetch('config/webhook.json');
+          const jw = await w.json();
+          window.SHEETS_WEBHOOK_URL = jw.sheetsWebhook || '';
+        } catch (e) { window.SHEETS_WEBHOOK_URL = ''; }
       } catch (err) {
         console.error('讀取 version.json 發生錯誤', err);
       }
@@ -46,6 +52,12 @@
     document.addEventListener('DOMContentLoaded', () => { loadVersion(); initLogging(); });
 
     function sendLog(type, page, extra){
+      // If a webhook URL is configured, use an image beacon GET to avoid CORS.
+      if (window.SHEETS_WEBHOOK_URL) {
+        const url = `${window.SHEETS_WEBHOOK_URL}?type=${encodeURIComponent(type)}&page=${encodeURIComponent(page)}&extra=${encodeURIComponent(extra||'')}`;
+        const img = new Image(); img.src = url; return;
+      }
+      // Fallback: try existing /api/log
       fetch('/api/log', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({type, page, extra})}).catch(()=>{});
     }
 

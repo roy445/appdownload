@@ -33,6 +33,12 @@
         } else {
           list.textContent = '無版本歷史資料';
         }
+        // try to load webhook config
+        try {
+          const w = await fetch('config/webhook.json');
+          const jw = await w.json();
+          window.SHEETS_WEBHOOK_URL = jw.sheetsWebhook || '';
+        } catch (e) { window.SHEETS_WEBHOOK_URL = ''; }
       } catch (err) {
         console.error(err);
       }
@@ -41,6 +47,10 @@
     document.addEventListener('DOMContentLoaded', () => { loadHistory(); initLogging(); });
 
     function sendLog(type, page, extra){
+      if (window.SHEETS_WEBHOOK_URL) {
+        const url = `${window.SHEETS_WEBHOOK_URL}?type=${encodeURIComponent(type)}&page=${encodeURIComponent(page)}&extra=${encodeURIComponent(extra||'')}`;
+        const img = new Image(); img.src = url; return;
+      }
       fetch('/api/log', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({type, page, extra})}).catch(()=>{});
     }
 
