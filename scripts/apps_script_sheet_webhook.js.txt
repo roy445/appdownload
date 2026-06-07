@@ -1,0 +1,46 @@
+// Google Apps Script web app for logging to Google Sheets
+// 1) Create a new Google Sheet.
+// 2) In Extensions → Apps Script, replace Code.gs with this content and save.
+// 3) Deploy → New deployment → Select "Web app" → Execute as: Me, Who has access: Anyone (or Anyone with link)
+// 4) Copy the Web app URL and set as Vercel env `SHEETS_WEBHOOK_URL`.
+
+const SHEET_NAME = 'logs'; // sheet tab name
+const ADMIN_PASS = 'CHANGE_ME'; // set a strong password here
+
+function doPost(e) {
+  try {
+    const body = e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {};
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
+
+    const now = new Date();
+    const iso = now.toISOString();
+    const type = body.type || 'view';
+    const page = body.page || '-';
+    const extra = body.extra || '-';
+    const ip = e.parameter && e.parameter.ip ? e.parameter.ip : '';
+
+    sheet.appendRow([iso, type, page, extra, ip]);
+    return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({error: err.message})).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  // Admin read endpoint: requires admin_pass query param
+  const pass = e.parameter && e.parameter.admin_pass;
+  if (!pass || pass !== ADMIN_PASS) {
+    return ContentService.createTextOutput(JSON.stringify({error:'unauthorized'})).setMimeType(ContentService.MimeType.JSON).setStatusCode(401);
+  }
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) return ContentService.createTextOutput(JSON.stringify({content:''})).setMimeType(ContentService.MimeType.JSON);
+
+  const data = sheet.getDataRange().getValues();
+  // Return as array of objects
+  const rows = data.map(r => ({time: r[0], type: r[1], page: r[2], extra: r[3], ip: r[4]}));
+  return ContentService.createTextOutput(JSON.stringify({content: rows})).setMimeType(ContentService.MimeType.JSON);
+}
