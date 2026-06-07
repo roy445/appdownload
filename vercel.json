@@ -2,9 +2,11 @@
   "version": 2,
   "name": "appdownload",
   "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
     { "src": "**/*", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "^/api/(.*)", "dest": "/api/$1.js" },
     { "src": "^/$", "dest": "/index.html" },
     { "src": "^/versions$", "dest": "/versions.html" },
     { "src": "^/versions.html$", "dest": "/versions.html" }
