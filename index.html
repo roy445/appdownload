@@ -43,7 +43,41 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadVersion);
+    document.addEventListener('DOMContentLoaded', () => { loadVersion(); initLogging(); });
+
+    function sendLog(type, page, extra){
+      fetch('/api/log', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({type, page, extra})}).catch(()=>{});
+    }
+
+    function initLogging(){
+      // log page view
+      sendLog('view','home');
+      // download button
+      const dl = document.getElementById('download-btn');
+      dl.addEventListener('click', ()=> sendLog('download','home', dl.href));
+
+      // hidden admin: click logo 7 times to prompt for password and fetch logs
+      const logo = document.querySelector('.logo');
+      let clicks = 0;
+      logo.addEventListener('click', async ()=>{
+        clicks++;
+        if (clicks >= 7){
+          clicks = 0;
+          const pass = prompt('管理密碼：');
+          if (!pass) return;
+          const r = await fetch(`/api/log?admin_pass=${encodeURIComponent(pass)}`);
+          if (r.status===200){
+            const j = await r.json();
+            const w = window.open('about:blank','_blank','width=700,height=600');
+            w.document.title = 'Logs';
+            w.document.body.style.whiteSpace = 'pre-wrap';
+            w.document.body.textContent = j.content || 'no logs';
+          } else {
+            alert('密碼錯誤或無法取得日誌');
+          }
+        }
+      });
+    }
   </script>
 </head>
   <body>
