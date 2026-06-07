@@ -15,13 +15,14 @@ function doPost(e) {
     if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
 
     const now = new Date();
-    const iso = now.toISOString();
+    const tz = Session.getScriptTimeZone ? Session.getScriptTimeZone() : 'UTC';
+    const fmt = Utilities.formatDate(now, tz, 'yyyy-MM-dd HH:mm:ss');
     const type = body.type || 'view';
     const page = body.page || '-';
     const extra = body.extra || '-';
     const ip = e.parameter && e.parameter.ip ? e.parameter.ip : '';
 
-    sheet.appendRow([iso, type, page, extra, ip]);
+    sheet.appendRow([fmt, type, page, extra, ip]);
     return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({error: err.message})).setMimeType(ContentService.MimeType.JSON);
@@ -50,7 +51,9 @@ function doGet(e) {
     let sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
     const now = new Date();
-    sheet.appendRow([now.toISOString(), params.type || 'view', params.page || '-', params.extra || '-', params.ip || '']);
+    const tz2 = Session.getScriptTimeZone ? Session.getScriptTimeZone() : 'UTC';
+    const fmt2 = Utilities.formatDate(now, tz2, 'yyyy-MM-dd HH:mm:ss');
+    sheet.appendRow([fmt2, params.type || 'view', params.page || '-', params.extra || '-', params.ip || '']);
     return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);
   }
 
