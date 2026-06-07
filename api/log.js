@@ -71,7 +71,10 @@ module.exports = async (req, res) => {
 
     if (req.method === 'GET') {
       const {admin_pass, action} = req.query;
-      if (!admin_pass || admin_pass !== ADMIN_PASS) return res.status(401).json({error:'unauthorized'});
+        // Debug: show whether admin_pass was provided and whether it matches (do NOT log the secret)
+        console.log('DEBUG: admin_pass provided:', !!admin_pass);
+        console.log('DEBUG: admin_pass matches:', admin_pass === ADMIN_PASS);
+        if (!admin_pass || admin_pass !== ADMIN_PASS) return res.status(401).json({error:'unauthorized'});
       // return raw log content
       const file = await getFile(GITHUB_TOKEN);
       const content = file && file.content ? Buffer.from(file.content, 'base64').toString('utf8') : '';
